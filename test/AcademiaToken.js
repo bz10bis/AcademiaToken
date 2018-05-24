@@ -45,7 +45,7 @@ contract('AcademiaToken', function(accounts) {
             assert.equal(receipt.logs.length, 1, 'Trigger an event');
             assert.equal(receipt.logs[0].event, 'Transfer', 'Transfer event');
             assert.equal(receipt.logs[0].args._from, accounts[0], 'The transaction came from account0');
-            assert.equal(receipt.logs[0].args._to, accounts[1], 'Transfer to account1');
+            assert.equal(receipt.logs[0].args._to, accounts[1], 'Transfered to account1');
             assert.equal(receipt.logs[0].args._value, ref_transferValue, 'Value is ok');
             return tokenInstance.balanceOf(accounts[0]);
         }).then(function(balance) {
@@ -53,6 +53,22 @@ contract('AcademiaToken', function(accounts) {
             return tokenInstance.balanceOf(accounts[1]);
         }).then(function(balance) {
             assert.equal(balance.toNumber(), ref_transferValue, 'Add tokens to target account');
+        });
+    });
+
+    it('Allows delegation', function() {
+        return AcademiaToken.deployed().then(function(instance) {
+            tokenInstance = instance;
+            return tokenInstance.approve.call(accounts[1], ref_transferValue);
+        }).then(function(success) {
+            assert.equal(success, true, 'Returned true');
+            return tokenInstance.approve(accounts[1], ref_transferValue);
+        }).then(function(receipt) {
+            assert.equal(receipt.logs.length, 1, 'Trigger an event');
+            assert.equal(receipt.logs[0].event, 'Approval', 'Approval event');
+            assert.equal(receipt.logs[0].args._owner, accounts[0], 'The delegation came from account0');
+            assert.equal(receipt.logs[0].args._spender, accounts[1], 'Delegated to account1');
+            assert.equal(receipt.logs[0].args._value, ref_transferValue, 'Value is ok');
         });
     });
 });

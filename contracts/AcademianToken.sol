@@ -1,7 +1,11 @@
 pragma solidity ^0.4.20;
 
+import "./SafeMath.sol";
+
 contract AcademiaToken {
     
+    using SafeMath for uint256;
+
     string public name = "Academia Token";
     string public symbol = "ACT";
     uint8 public decimals = 18;
@@ -29,6 +33,9 @@ contract AcademiaToken {
 
     function transfer(address _to, uint _value) public returns (bool success) {
         require(balanceOf[msg.sender] >= _value);
+        balanceOf[msg.sender] = balanceOf[msg.sender].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
+        emit Transfer(msg.sender, _to, _value);
         return true;
     }
 

@@ -4,7 +4,7 @@ contract('AcademiaToken', function(accounts) {
     var tokenInstance;
     var ref_totalSupply = 1000000;
     var ref_greaterThanSupply = ref_totalSupply * 999;
-    var ref_transferValue = 100;
+    var ref_transferValue = 10;
 
     it('Initializes with correct values', function() {
         return AcademiaToken.deployed().then(function(instance) {
@@ -77,21 +77,21 @@ contract('AcademiaToken', function(accounts) {
             tokenInstance = instance;
             return tokenInstance.transfer(accounts[2], 100, { from: accounts[0]});
         }).then(function(receipt) {
-            return tokenInstance.approve(accounts[3], 10, { from: accounts[2] });
+            return tokenInstance.approve(accounts[4], 10, { from: accounts[2] });
         }).then(function(receipt) {
-            return tokenInstance.transferFrom(accounts[2], accounts[3], 9999);
+            return tokenInstance.transferFrom(accounts[2], accounts[3], 9999, { from: accounts[4] });
         }).then(assert.fail).catch(function(error) {
             assert(error.message.indexOf('revert') >= 0, 'cant transfer value greater than balance');
-            return tokenInstance.transferFrom(accounts[2], accounts[3], 20);
+            return tokenInstance.transferFrom(accounts[2], accounts[3], 20, { from: accounts[4] });
         }).then(assert.fail).catch(function(error) {
             assert(error.message.indexOf('revert') >= 0, 'cant transfer value greater than allowance');
-            return tokenInstance.transferFrom(accounts[2], accounts[3], 10);
+            return tokenInstance.transferFrom(accounts[2], accounts[3], ref_transferValue, { from: accounts[4] });
         }).then(function(receipt) {
             assert.equal(receipt.logs.length, 1, 'Trigger an event');
             assert.equal(receipt.logs[0].event, 'Transfer', 'Transfer event');
             assert.equal(receipt.logs[0].args._from, accounts[2], 'The transaction came from account2');
             assert.equal(receipt.logs[0].args._to, accounts[3], 'Transfered to account3');
-            assert.equal(receipt.logs[0].args._value, ref_transferValue, 'Value is ok');
+            assert.equal(receipt.logs[0].args._value, ref_transferValue, 'Transfered value');
         });
     });
 });

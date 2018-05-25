@@ -71,4 +71,27 @@ contract('AcademiaToken', function(accounts) {
             assert.equal(receipt.logs[0].args._value, ref_transferValue, 'Value is ok');
         });
     });
+
+    it('Manages delegation token transfers', function() {
+        return AcademiaToken.deployed().then(function(instance) {
+            tokenInstance = instance;
+            return tokenInstance.transfer(accounts[2], 100, { from: accounts[0]});
+        }).then(function(receipt) {
+            return tokenInstance.approve(accounts[3], 10, { from: accounts[2] });
+        }).then(function(receipt) {
+            return tokenInstance.transferFrom(accounts[2], accounts[3], 9999);
+        }).then(assert.fail).catch(function(error) {
+            assert(error.message.indexOf('revert') >= 0, 'cant transfer value greater than balance');
+            return tokenInstance.transferFrom(accounts[2], accounts[3], 20);
+        }).then(assert.fail).catch(function(error) {
+            assert(error.message.indexOf('revert') >= 0, 'cant transfer value greater than allowance');
+            return tokenInstance.transferFrom(accounts[2], accounts[3], 10);
+        }).then(function(receipt) {
+            assert.equal(receipt.logs.length, 1, 'Trigger an event');
+            assert.equal(receipt.logs[0].event, 'Transfer', 'Transfer event');
+            assert.equal(receipt.logs[0].args._from, accounts[2], 'The transaction came from account2');
+            assert.equal(receipt.logs[0].args._to, accounts[3], 'Transfered to account3');
+            assert.equal(receipt.logs[0].args._value, ref_transferValue, 'Value is ok');
+        });
+    });
 });

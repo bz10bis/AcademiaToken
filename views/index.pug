@@ -1,6 +1,15 @@
 html
     head
         title= title
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+        script(src="web3.min.js")
+        script(src="app.js")
     body
         h1= message
-        p= account
+        p Network:
+            span#current-network
+        p Account: 
+            span#account-address
+        p Balance:
+            span#account-balance-eth
+            
